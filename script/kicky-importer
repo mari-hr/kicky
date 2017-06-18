@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use v5.16;
+
+use Kicky;
+
+use Getopt::Long;
+my %opt = ();
+GetOptions (\%opt, 'config|c=s');
+
+use Kicky;
+my $app = Kicky->new( config_file => $opt{config} );
+
+my $file = shift;
+
+open my $fh, '<:raw', $file or die "failed to open '$file': $!";
+my $data = $app->json->decode( do { local $/; <$fh> });
+close $fh;
+
+$app->setup_db( $data );

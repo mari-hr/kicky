@@ -3,9 +3,11 @@ use warnings;
 use v5.14;
 
 package Kicky;
-use base 'GGWP::Base';
+use base 'Yasen', 'Kicky::Base';
 
 our $VERSION = '0.01';
+
+use Kicky::Request;
 
 =head1 NAME
 
@@ -16,10 +18,11 @@ Kicky - Kick-ass message delivery to end users
 =cut
 
 # db
-#  consumers
+#  recipients
 #   platform
 #   token
-#   info: json, lang, name, nick, ...
+#   lang
+#   user_id: !?
 #   topics: array
 #   flags: array
 #  flags
@@ -27,15 +30,16 @@ Kicky - Kick-ass message delivery to end users
 #   name
 #   title: json, multilang
 #   description: json, multilang
-#  email_templates
+#  mail_templates
 #   id
-#   name
-#   title
-#   content
+#   name: keyword used in APIs
+#   title: string in interface
+#   subject: json, multilang
+#   content: json, multilang
 #
 # api
 #   /send/
-#       platforms
+#       platform
 #       payload
 #
 #       token
@@ -43,9 +47,9 @@ Kicky - Kick-ass message delivery to end users
 #       topics
 #       flags
 #
-# queues
-#   kicky-fetcher
-#   kicky-pushes-<platform>
+# exchanges
+#   kicky_requests: fanout
+#   kicky_pushes_<platform>
 #
 # platforms:
 #  email
@@ -63,6 +67,21 @@ Kicky - Kick-ass message delivery to end users
 #   kicky-cli
 #   kicky-fetcher
 #   kicky-sender-<platform>
+
+sub routes {
+    my $self = shift;
+    return (
+        {
+            path => '/api/v1/mail/send',
+            controller => 'Kicky::API',
+            methods => {
+                POST => {
+                    action => 'send_mail',
+                },
+            },
+        }
+    );
+}
 
 =head1 AUTHOR
 

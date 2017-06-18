@@ -2,16 +2,19 @@ use strict;
 use warnings;
 use v5.14;
 
-package Kicky::Sender::Email;
+package Kicky::Sender::Mail;
+use base 'Kicky::Sender';
+
 use MIME::Entity;
 use Promises qw(deferred);
+use Carp qw(confess);
 
 sub send {
     my $self = shift;
     my %args = (
         subject => undef,
         to => undef,
-        body => undef,
+        content => undef,
         @_
     );
 
@@ -19,7 +22,7 @@ sub send {
         Type => 'text/html',
         To => $args{to},
         Subject => $args{subject},
-        Data => [$args{body}],
+        Data => [$args{content}],
     );
 
     return $self->run(
@@ -35,7 +38,9 @@ sub run {
     );
 
     my $cfg = $self->config->{email};
-    my $cmd = $cfg->{sendmail_path} || confess("No path");
+    my $cmd = $cfg->{sendmail_path}
+        or confess("No 'sendmail_path' in the config");
+    my @args = ();
 
     open my $h, '|-', $cmd, @args
         or die "Couldn't exec '$cmd': $!";

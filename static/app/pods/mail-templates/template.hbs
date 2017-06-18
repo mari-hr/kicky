@@ -1,0 +1,26 @@
+<h1>Mail Templates</h1>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>title</th>
+        <th>name</th>
+        <th>subject</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model as |tmpl|}}
+        <tr>
+          <td>{{tmpl.id}}</td>
+          <td>{{tmpl.title}}</td>
+          <td>{{tmpl.name}}</td>
+          <td>{{tmpl.subject.en}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+{{outlet}}

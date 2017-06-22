@@ -20,8 +20,18 @@ no_index:
     - inc
     - t
 requires:
+  AnyEvent: 0
+  AnyEvent::RabbitMQ: 0
+  Async::ContextSwitcher: 0
+  Carp: 0
+  DBIx::Poggy: 0
+  Getopt::Long: 0
   Japster: 0.01
+  MIME::Entity: 0
   Plum: 0.01
+  Promises: 0
+  Scalar::Util: 0
+  Text::Handlebars: 0
   Yasen: 0.01
   perl: 5.14.0
 resources:

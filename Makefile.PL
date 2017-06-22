@@ -9,4 +9,8 @@ requires
     'Japster' => '0.01',
 ;
 
+install_script('script/kicky-importer');
+install_script('script/kicky-server.psgi');
+install_script('script/kicky-setup');
+
 WriteAll();

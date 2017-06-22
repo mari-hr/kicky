@@ -4,13 +4,97 @@ use strict;
 use warnings;
 use v5.16;
 
+=head1 NAME
+
+kicky-setup - Kicky configuration helper
+
+=head1 DESCRIPTION
+
+Helps setup database (PostgreSQL), message queue (RabbitMQ) and other things.
+
+=head1 SYNOPSIS
+
+    # common syntax
+    kicky-setup <command> <options>
+
+    # default options
+    kicky-setup initdb
+
+    # various options
+    kicky-setup initdb -c etc/config.json --dba postgres --dba-password xxxx
+
+=head1 COMMON OPTIONS
+
+=over 4
+
+=item -c, --config - path to config file, C<etc/config.json> by default
+
+=back
+
+=head1 COMMANDS
+
+=head2 rabbit
+
+setups RabbitMQ exchanges and queues
+
+=head2 initdb
+
+re-creates PostgreSQL DB and tables from scratch.
+B<WARNING>: database is dropped
+
+=head3 command specific options
+
+=over 4
+
+=item --dba - postgres user that can drop and create database, C<postgres> by default
+
+=item --dba-password  - password of the above user, 'no password' by default
+
+=back
+
+=cut
+
+my $cmd = shift or do {
+    require Pod::Usage;
+    Pod::Usage::pod2usage(
+        -exitval => 1,
+        -verbose => 2,
+    );
+};
+
+my %commands = (
+    rabbit => { },
+    'initdb' => {
+        options => ['dba=s', 'dba-password=s'],
+        defaults => { dba => 'postgres' },
+    },
+);
+
+unless ( $commands{$cmd} ) {
+    die "wrong command '$cmd'\n";
+}
+
 use Getopt::Long;
 my %opt = ();
-GetOptions (\%opt, 'config|c=s');
+my @options = ('config|c=s');
+if ( $commands{$cmd}{defaults} ) {
+    %opt = (%opt, %{ $commands{$cmd}{defaults} });
+}
+
+if ( $commands{$cmd}{options} ) {
+    push @options, @{ $commands{$cmd}{options} };
+}
+GetOptions (\%opt, @options);
 
 use Kicky;
 my $app = Kicky->new( config_file => $opt{config} );
 
 use Async::ContextSwitcher qw(context cb_w_context);
-$app->rabbit->then(cb_w_context { shift->setup });
+if ( $cmd eq 'rabbit' ) {
+    $app->setup->rabbit;
+}
+elsif ( $cmd eq 'initdb' ) {
+    $app->setup->db_schema;
+}
+print "done\n";
 exit;

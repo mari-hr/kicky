@@ -19,4 +19,4 @@ open my $fh, '<:raw', $file or die "failed to open '$file': $!";
 my $data = $app->json->decode( do { local $/; <$fh> });
 close $fh;
 
-$app->setup_db( $data );
+$app->setup->db_import( $data );

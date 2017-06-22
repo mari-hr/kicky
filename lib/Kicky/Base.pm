@@ -37,19 +37,11 @@ sub rabbit {
     return $r->channel;
 }
 
-sub setup_db {
+sub setup {
     my $self = shift;
-    my $data = shift;
-
-    use Kicky::Model::MailTemplate;
-    foreach my $mt ( @{ $data->{'mail-templates'} || []}) {
-        my $cv = AnyEvent->condvar;
-        Kicky::Model::MailTemplate->create( dbh => $self->db->take, %$mt )
-            ->catch(sub { $self->log->error("failed to create template: @_") })
-            ->finally($cv);
-        $cv->recv;
-    }
-    return;
+    require Kicky::Setup;
+    state $res = Kicky::Setup->new( app => $self->app );
+    return $res;
 }
 
 1;

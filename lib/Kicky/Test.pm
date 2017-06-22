@@ -13,40 +13,19 @@ sub app {
     return $app if $app;
 
     my $config = { };
-    $self->bootstrap_db($config);
     $app = Kicky->new( config => $config );
 
-    my $cv = AnyEvent->condvar;
-    $app->rabbit->then(cb_w_context { return shift->setup })->finally($cv);
-    $cv->recv;
+    $self->bootstrap_db;
+    $self->bootstrap_rabbit;
 
     return $app;
 }
 
 sub bootstrap_db {
     my $self = shift;
-    my $config = shift;
 
-    my $dbname = 'kicky_test';
-
-    use DBI;
-    my $dbh = DBI->connect('dbi:Pg:host=localhost', postgres => undef, { PrintError => 1, RaiseError => 1 }); 
-    $dbh->do("DROP DATABASE IF EXISTS $dbname");
-    $dbh->do("CREATE DATABASE $dbname");
-
-    $dbh = DBI->connect("dbi:Pg:dbname=$dbname", postgres => undef, { PrintError => 1, RaiseError => 0 }); 
-    foreach my $file (qw(schema)) {
-        my $sql = do {
-            open my $fh, '<', "./schema/$file.sql"
-                or die "can not open '$file' schema: $!";
-            local $/; <$fh>
-        };
-        local $SIG{__WARN__} = sub {};
-        $dbh->do($sql) or die "failed to create schema: ". $dbh->errstr;
-    }
-
-    $config->{db} = {
-        name => $dbname,
+    $app->config->{db} = {
+        name => 'kicky_test',
         user => 'postgres',
         password => undef,
         connection_arguments => {
@@ -55,7 +34,11 @@ sub bootstrap_db {
         },
     };
 
-    return;
+    return $app->setup->db_schema;
+}
+
+sub bootstrap_rabbit {
+    $app->setup->rabbit;
 }
 
 

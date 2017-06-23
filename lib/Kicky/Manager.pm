@@ -43,8 +43,8 @@ sub process_request {
     my $json = $self->json;
     my $data = $json->decode( $payload );
 
-    my $platform = delete $data->{platform};
-    unless ( $data->{platform} ) {
+    my $platform = $data->{platform};
+    unless ( $platform ) {
         $self->log->error("message has no platform");
         return;
     }

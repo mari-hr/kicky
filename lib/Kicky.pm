@@ -72,11 +72,11 @@ sub routes {
     my $self = shift;
     return (
         {
-            path => '/api/v1/mail/send',
+            path => '/api/v1/send',
             controller => 'Kicky::API',
             methods => {
                 POST => {
-                    action => 'send_mail',
+                    action => 'send_push',
                 },
             },
         }

@@ -4,9 +4,11 @@ use warnings;
 package Kicky::API;
 use base 'Kicky::Base';
 
-=head2 send_mail
+use Async::ContextSwitcher;
 
-    POST /api/v1/mail/send
+=head2 send_push
+
+    POST /api/v1/send
     Content-Type: application/json
 
     {

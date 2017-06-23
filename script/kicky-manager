@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use v5.16;
+
+=head1 NAME
+
+kicky-manager - processing requests, collects data and distributes it to senders
+
+=cut
+
+use Kicky;
+use AnyEvent;
+use Daemon::Generic;
+our $VERSION = Kicky->VERSION;
+
+sub gd_preconfig {
+    my $self = shift;
+    return %{ $self->{config} = Kicky->load_config_file( $self->{configfile} ) || {} }; 
+}
+
+sub gd_run {
+    my $self = shift;
+    my $app = Kicky->new( config => $self->{config} ); 
+    my $cv = AnyEvent->condvar;
+    say "crunching";
+    $app->manager->setup_listener;
+    $cv->recv;
+}
+
+newdaemon(
+    progname => 'kicky-manager',
+    configfile => 'etc/config.json',
+    pidfile => '/tmp/kicky-manager.pid',
+);
+

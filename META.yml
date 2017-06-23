@@ -25,6 +25,7 @@ requires:
   Async::ContextSwitcher: 0
   Carp: 0
   DBIx::Poggy: 0
+  Daemon::Generic: 0
   Getopt::Long: 0
   Japster: 0.01
   MIME::Entity: 0

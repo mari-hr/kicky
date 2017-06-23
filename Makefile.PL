@@ -17,10 +17,12 @@ requires
     'DBIx::Poggy' => 0,
     'Getopt::Long' => 0,
     'MIME::Entity' => 0,
+    'Daemon::Generic' => 0,
 ;
 
 install_script('script/kicky-importer');
 install_script('script/kicky-server.psgi');
 install_script('script/kicky-setup');
+install_script('script/kicky-manager');
 
 WriteAll();

@@ -37,6 +37,13 @@ sub rabbit {
     return $r->channel;
 }
 
+sub manager {
+    my $self = shift;
+    require Kicky::Manager;
+    state $res = Kicky::Manager->new( app => $self->app );
+    return $res;
+}
+
 sub setup {
     my $self = shift;
     require Kicky::Setup;

@@ -24,5 +24,6 @@ install_script('script/kicky-importer');
 install_script('script/kicky-server.psgi');
 install_script('script/kicky-setup');
 install_script('script/kicky-manager');
+install_script('script/kicky-sender-mail');
 
 WriteAll();

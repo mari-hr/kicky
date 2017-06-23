@@ -44,6 +44,14 @@ sub manager {
     return $res;
 }
 
+sub sender {
+    my $self = shift;
+    my %args = (@_);
+    require Kicky::Sender;
+    state %res;
+    return $res{ $args{platform} } ||= Kicky::Sender->new( %args, app => $self->app );
+}
+
 sub setup {
     my $self = shift;
     require Kicky::Setup;

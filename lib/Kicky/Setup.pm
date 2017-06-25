@@ -4,6 +4,8 @@ use warnings;
 package Kicky::Setup;
 use base 'Kicky::Base';
 
+use Async::ContextSwitcher;
+
 sub db_schema {
     my $self = shift;
     my %args = (

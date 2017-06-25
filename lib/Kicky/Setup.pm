@@ -12,18 +12,21 @@ sub db_schema {
         @_
     );
 
-    my $host = $self->config->{db}{host} || 'localhost';
+    my $host = $self->config->{db}{host};
     my $name = $self->config->{db}{name} || 'kicky';
+
+    my $dsn = 'dbi:Pg:';
+    $dsn .= "host=$host;" if $host;
 
     require DBI;
     my $dbh = DBI->connect(
-        'dbi:Pg:host='. $host, $args{dba}, $args{password},
+        $dsn, $args{dba}, $args{password},
         { PrintError => 1, RaiseError => 1 }
     );
     $dbh->do("DROP DATABASE IF EXISTS $name");
     $dbh->do("CREATE DATABASE $name");
 
-    $dbh = DBI->connect("dbi:Pg:host=$host;dbname=$name", postgres => undef, { PrintError => 1, RaiseError => 0 }); 
+    $dbh = DBI->connect("${dsn}dbname=$name", postgres => undef, { PrintError => 1, RaiseError => 0 });
     foreach my $file (qw(schema)) {
         my $sql = do {
             open my $fh, '<', "./schema/$file.sql"

@@ -97,7 +97,7 @@ sub channel {
                 use Data::Dumper;
                 print STDERR Dumper(\@_);
                 my $method_frame = shift->method_frame;
-                die $method_frame->reply_code, $method_frame->reply_text;
+                die join ':', grep $_, $method_frame->reply_code, $method_frame->reply_text;
             },
         );
         return $d->promise;

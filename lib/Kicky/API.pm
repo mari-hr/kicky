@@ -12,14 +12,6 @@ use Async::ContextSwitcher;
     Content-Type: application/json
 
     {
-        "recipient": {}
-        "template": {
-            "name": "template name",
-            "payload": {...},
-        },
-    }
-
-    {
         "platform": "mail",
         "token": "ruz@sport.ru",
         "template": {

@@ -94,8 +94,6 @@ sub channel {
                 $d->reject( "Channel: ", @_ )
             },
             on_close   => sub {
-                use Data::Dumper;
-                print STDERR Dumper(\@_);
                 my $method_frame = shift->method_frame;
                 die join ':', grep $_, $method_frame->reply_code, $method_frame->reply_text;
             },
@@ -107,6 +105,7 @@ sub channel {
 package Kicky::Rabbit::Channel;
 use base 'Kicky::Base';
 use Promises qw(deferred);
+use Async::ContextSwitcher;
 
 sub exchange {
     my $self = shift;
@@ -167,12 +166,26 @@ sub publish {
     my $self = shift;
     my %args = ( @_ );
 
+    return $self->confirm
+    ->then( cb_w_context {
+        my $d = deferred;
+        $self->{c}->publish(
+            %args,
+            on_ack => sub { $d->resolve( @_ ) },
+            on_nack => sub { $d->reject( @_ ) },
+        );
+        return $d->promise;
+    });
+}
+
+sub confirm {
+    my $self = shift;
+
     my $d = deferred;
-    $self->{c}->publish(
-        %args,
-        no_ack => 0,
-        on_ack => sub { $d->resolve( @_ ) },
-        on_nack => sub { $d->reject( @_ ) },
+    return $d->resolve->promise if $self->{c}->is_confirm;
+    $self->{c}->confirm(
+        on_success => cb_w_context { $d->resolve },
+        on_failure => cb_w_context { $d->reject( @_ ) },
     );
     return $d->promise;
 }

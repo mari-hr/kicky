@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $in = do { local $/; <STDIN> };
+
+open my $fh, '>>', 't/tmp/mail.log' or die "$!";
+print $fh "ARGS: ". join( ",", @ARGV ) ."\n\n";
+print $fh "$in";
+print $fh "%% END MAIL %%\n";
+
+exit 0;

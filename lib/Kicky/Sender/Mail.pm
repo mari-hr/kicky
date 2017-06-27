@@ -37,10 +37,10 @@ sub run {
         @_
     );
 
-    my $cfg = $self->config->{email};
+    my $cfg = $self->config->{mail};
     my $cmd = $cfg->{sendmail_path}
         or confess("No 'sendmail_path' in the config");
-    my @args = ();
+    my @args = (@{$cfg->{sendmail_args}||[]});
 
     open my $h, '|-', $cmd, @args
         or die "Couldn't exec '$cmd': $!";

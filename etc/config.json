@@ -1,3 +1,7 @@
 {
     "db": { "name": "kicky", "user": "postgres" }
+    "mail": {
+        "sendmail_path": "/usr/sbin/sendmail",
+        "sendmail_args": ["-XV", "-f", "bounces", "-t"]
+    }
 }

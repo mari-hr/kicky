@@ -15,6 +15,37 @@ Kicky - Kick-ass message delivery to end users
 
 =head1 DESCRIPTION
 
+=head1 CONFIGURATION
+
+You configure Kicky using a JSON file. Most command line tools take "-c <file>"
+option, psgi application takes path via ENV variable "KICKY_CONFIG".
+
+=head2 mail
+
+    {
+        ...
+        "mail": {
+            "sendmail_path": "/usr/sbin/sendmail",
+            "sendmail_args": ["-XV", "-f", "bounces", "-t"]
+        }
+        ...
+    }
+
+Mail subsection has the following keys:
+
+=over 4
+
+=item sendmail_path (string, B<required>)
+
+Absolute path to sendmail binary.
+
+=item sendmail_args (array of strings, B<optional>)
+
+Array of additional arguments that are passed to sendmail.
+Most probably you need '-t'.
+
+=back
+
 =cut
 
 # db

@@ -46,6 +46,7 @@ sub setup_listener {
             cb => cb_w_context {
                 my $m = shift;
                 $self->ctx->new;
+                $self->log->debug("A new mail push");
                 $self->process_message($m);
             },
             no_ack => 1,
@@ -75,7 +76,7 @@ sub process_message {
         return collect(@p);
     })
     ->then(cb_w_context {
-
+        $self->log->debug("processed push");
     })
     ->catch(cb_w_context{
         $self->log->error("Couldn't process a request: ". $self->dump(\@_));

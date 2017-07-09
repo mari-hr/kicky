@@ -8,6 +8,10 @@ use Async::ContextSwitcher;
 
 my $app = Kicky::Test->app;
 
+use_ok('Kicky::Manager');
+my $manager = Kicky::Manager->new( app => $app, platform => 'mail');
+$manager->setup_listener;
+
 use_ok('Kicky::Sender');
 my $sender = Kicky::Sender->new( app => $app, platform => 'mail');
 $sender->setup_listener;
@@ -43,17 +47,15 @@ note "publishing a request";
     ->then(cb_w_context {
         $r = shift;
         $r->publish(
-            exchange => 'kicky_pushes_mail',
+            exchange => 'kicky_requests',
             body => $app->json->encode({
                 platform => 'mail',
                 lang => 'en',
+                token => 'test@test.com',
                 template => {
                     name => 'test',
                     payload => { who => 'world' },
                 },
-                recipients => [
-                    'test@test.com'
-                ],
             }),
         );
     })

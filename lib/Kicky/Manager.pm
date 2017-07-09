@@ -53,8 +53,8 @@ sub process_request {
 
     my @tokens;
     if ( $data->{token} ) {
-        delete $data->{token};
-        push @tokens, $data->{token};
+        my $token = delete $data->{token};
+        push @tokens, $token;
     }
     elsif ( $data->{topics} && $data->{flags} ) {
         die "not yet implemented"

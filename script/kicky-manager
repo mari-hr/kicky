@@ -24,7 +24,6 @@ sub gd_run {
     my $self = shift;
     my $app = Kicky->new( config => $self->{config} ); 
     my $cv = AnyEvent->condvar;
-    say "crunching";
     $app->manager->setup_listener;
     $cv->recv;
 }

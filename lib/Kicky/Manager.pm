@@ -22,6 +22,7 @@ sub setup_listener {
             cb => cb_w_context {
                 my $m = shift;
                 $self->ctx->new;
+                $self->log->debug("A new request");
                 $self->process_request($m);
             },
             no_ack => 1,
@@ -48,6 +49,7 @@ sub process_request {
         $self->log->error("message has no platform");
         return;
     }
+    $self->log->debug("Platform '$platform'");
 
     my @tokens;
     if ( $data->{token} ) {

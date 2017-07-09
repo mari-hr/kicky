@@ -70,7 +70,7 @@ sub process_request {
             $r->publish(
                 exchange => 'kicky_pushes_'. $platform,
 
-                body => $json->encode({ %$data, tokens => [$token] }),
+                body => $json->encode({ %$data, recipients => [$token] }),
             );
         }
     });

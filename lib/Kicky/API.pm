@@ -33,12 +33,17 @@ sub send_push {
     $self->rabbit
     ->then(cb_w_context {
         my $r = shift;
-        $r->publish(
+        return $r->publish(
             exchange => 'kicky_requests',
             body => $self->json->encode($args),
         );
+    })
+    ->then(cb_w_context {
+        return $self->simple_psgi_response(json => { data => {} });
+    })
+    ->catch(cb_w_context {
+        return $self->simple_psgi_response(503, json => {});
     });
-    return $self->simple_psgi_response(json => { data => {} });
 }
 
 1;

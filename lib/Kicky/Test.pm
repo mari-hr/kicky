@@ -56,5 +56,10 @@ sub last_mail {
     return $list[-1];
 }
 
+sub basic_request_env {
+    my $self = shift;
+    require Japster::Test;
+    return Japster::Test->basic_request_env( @_ );
+}
 
 1;

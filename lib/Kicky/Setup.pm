@@ -5,6 +5,7 @@ package Kicky::Setup;
 use base 'Kicky::Base';
 
 use Async::ContextSwitcher;
+use Promises qw(collect);
 
 sub db_schema {
     my $self = shift;
@@ -59,10 +60,54 @@ sub db_import {
 sub rabbit {
     my $self = shift;
     my $cv = AnyEvent->condvar;
-    $self->app->rabbit->then(cb_w_context { return shift->setup })->finally($cv);
+    $self->app->rabbit
+    ->then(cb_w_context {
+        my $r = shift;
+
+        my @p;
+        my $exchange = sub {
+            push @p, $r->exchange(@_)
+                ->then(cb_w_context { $self->log->debug('created an exchange') });
+        };
+        my $queue = sub {
+            push @p, $r->queue(@_)
+                ->then(cb_w_context { $self->log->debug('created a queue') });
+        };
+
+        $exchange->(
+            name => 'kicky_requests',
+            type => 'fanout',
+            durable => 1,
+        );
+
+        $queue->(
+            name => 'kicky_manager',
+            exchange => 'kicky_requests',
+            durable => 1,
+        );
+
+        foreach my $platform (qw(mail gcm apns facebook)) {
+            $exchange->(
+                name => 'kicky_pushes_'. $platform,
+                type => 'fanout',
+                durable => 1,
+            );
+
+            $queue->(
+                name => 'kicky_sender_'. $platform,
+                exchange => 'kicky_pushes_'. $platform,
+                durable => 1,
+            );
+        }
+
+        return collect(@p);
+    })
+    ->catch(cb_w_context {
+        $self->log->error("Something went wrong: @_");
+    })
+    ->finally($cv);
     $cv->recv;
     return;
 }
-
 
 1;

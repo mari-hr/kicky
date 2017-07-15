@@ -50,7 +50,24 @@ sub db_import {
     foreach my $mt ( @{ $data->{'mail-templates'} || []}) {
         my $cv = AnyEvent->condvar;
         Kicky::Model::MailTemplate->create( dbh => $self->db->take, %$mt )
-            ->catch(sub { $self->log->error("failed to create template: @_") })
+            ->then(sub {
+                my $tmpl = shift;
+                $self->log->debug("Created a new template #". $tmpl->id ." '". $tmpl->name ."'");
+            })
+            ->catch(sub {
+                my $e = shift;
+                if ( $e->code eq 'conflict' ) {
+                    return Kicky::Model::MailTemplate->update( dbh => $self->db->take, %$mt )
+                    ->then(sub {
+                        my $tmpl = shift;
+                        $self->log->debug("Updated template #". $tmpl->id ." '". $tmpl->name ."'");
+                    });
+                }
+                die $e;
+            })
+            ->catch(sub {
+                $self->log->error("failed to create template: ". $self->dump(\@_));
+            })
             ->finally($cv);
         $cv->recv;
     }

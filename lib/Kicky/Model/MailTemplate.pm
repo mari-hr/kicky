@@ -9,6 +9,8 @@ use Async::ContextSwitcher;
 
 sub table { 'mail_templates' }
 
+sub unique_sets { (['id'], ['name']) }
+
 sub structure {
     return {
         id => {},

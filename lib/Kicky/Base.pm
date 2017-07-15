@@ -25,6 +25,7 @@ sub db {
     my $self = shift;
     my $cfg = $self->app->config->{db};
     $cfg->{connection_arguments} ||= {};
+    $cfg->{connection_arguments}{PrintError} = 0;
     $cfg->{connection_arguments}{HandleError} = sub { $_[0]=Carp::longmess($_[0]); 0; };
     $pool = DBIx::Poggy->new;
     $pool->connect('dbi:Pg:db='. $cfg->{name}, $cfg->{user}, $cfg->{password}, $cfg->{connection_arguments});
